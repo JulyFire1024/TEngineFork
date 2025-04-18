@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using UnityEngine;
 
 namespace YooAsset
@@ -57,8 +58,8 @@ namespace YooAsset
                 // 注意：边玩边下下载器引用计数没有Release
                 if (_downloadFileOp == null)
                 {
-                    DownloadParam downloadParam = new DownloadParam(int.MaxValue, 60);
-                    _downloadFileOp = _fileSystem.DownloadFileAsync(_bundle, downloadParam);
+                    DownloadFileOptions options = new DownloadFileOptions(int.MaxValue, 60);
+                    _downloadFileOp = _fileSystem.DownloadFileAsync(_bundle, options);
                     _downloadFileOp.StartOperation();
                     AddChildOperation(_downloadFileOp);
                 }
@@ -260,9 +261,30 @@ namespace YooAsset
             {
                 if (_fileSystem.Exists(_bundle))
                 {
-                    DownloadProgress = 1f;
-                    DownloadedBytes = _bundle.FileSize;
-                    _steps = ESteps.LoadCacheRawBundle;
+                    // 注意：缓存的原生文件的格式，可能会在业务端根据需求发生变动！
+                    // 注意：这里需要校验文件格式，如果不一致对本地文件进行修正！
+                    string filePath = _fileSystem.GetCacheBundleFileLoadPath(_bundle);
+                    if (File.Exists(filePath) == false)
+                    {
+                        try
+                        {
+                            var recordFileElement = _fileSystem.GetRecordFileElement(_bundle);
+                            File.Move(recordFileElement.DataFilePath, filePath);
+                            _steps = ESteps.LoadCacheRawBundle;
+                        }
+                        catch (Exception e)
+                        {
+                            _steps = ESteps.Done;
+                            Status = EOperationStatus.Failed;
+                            Error = $"Faild rename raw data file : {e.Message}";
+                        }
+                    }
+                    else
+                    {
+                        DownloadProgress = 1f;
+                        DownloadedBytes = _bundle.FileSize;
+                        _steps = ESteps.LoadCacheRawBundle;
+                    }
                 }
                 else
                 {
@@ -275,8 +297,8 @@ namespace YooAsset
                 // 注意：边玩边下下载器引用计数没有Release
                 if (_downloadFileOp == null)
                 {
-                    DownloadParam downloadParam = new DownloadParam(int.MaxValue, 60);
-                    _downloadFileOp = _fileSystem.DownloadFileAsync(_bundle, downloadParam);
+                    DownloadFileOptions options = new DownloadFileOptions(int.MaxValue, 60);
+                    _downloadFileOp = _fileSystem.DownloadFileAsync(_bundle, options);
                     _downloadFileOp.StartOperation();
                     AddChildOperation(_downloadFileOp);
                 }

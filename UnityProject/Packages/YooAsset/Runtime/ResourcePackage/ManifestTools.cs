@@ -8,7 +8,30 @@ namespace YooAsset
 {
     internal static class ManifestTools
     {
-#if UNITY_EDITOR
+        /// <summary>
+        /// 验证清单文件的二进制数据
+        /// </summary>
+        public static bool VerifyManifestData(byte[] fileData, string hashValue)
+        {
+            if (fileData == null || fileData.Length == 0)
+                return false;
+            if (string.IsNullOrEmpty(hashValue))
+                return false;
+
+            // 注意：兼容俩种验证方式
+            // 注意：计算MD5的哈希值通常为32个字符
+            string fileHash;
+            if (hashValue.Length == 32)
+                fileHash = HashUtility.BytesMD5(fileData);
+            else
+                fileHash = HashUtility.BytesCRC32(fileData);
+
+            if (fileHash == hashValue)
+                return true;
+            else
+                return false;
+        }
+
         /// <summary>
         /// 序列化（JSON文件）
         /// </summary>
@@ -26,10 +49,10 @@ namespace YooAsset
             using (FileStream fs = new FileStream(savePath, FileMode.Create))
             {
                 // 创建缓存器
-                BufferWriter buffer = new BufferWriter(YooAssetSettings.ManifestFileMaxSize);
+                BufferWriter buffer = new BufferWriter(ManifestDefine.FileMaxSize);
 
                 // 写入文件标记
-                buffer.WriteUInt32(YooAssetSettings.ManifestFileSign);
+                buffer.WriteUInt32(ManifestDefine.FileSign);
 
                 // 写入文件版本
                 buffer.WriteUTF8(manifest.FileVersion);
@@ -97,13 +120,13 @@ namespace YooAsset
 
             // 读取文件标记
             uint fileSign = buffer.ReadUInt32();
-            if (fileSign != YooAssetSettings.ManifestFileSign)
+            if (fileSign != ManifestDefine.FileSign)
                 throw new Exception("Invalid manifest file !");
 
             // 读取文件版本
             string fileVersion = buffer.ReadUTF8();
-            if (fileVersion != YooAssetSettings.ManifestFileVersion)
-                throw new Exception($"The manifest file version are not compatible : {fileVersion} != {YooAssetSettings.ManifestFileVersion}");
+            if (fileVersion != ManifestDefine.FileVersion)
+                throw new Exception($"The manifest file version are not compatible : {fileVersion} != {ManifestDefine.FileVersion}");
 
             PackageManifest manifest = new PackageManifest();
             {
@@ -160,7 +183,7 @@ namespace YooAsset
             InitManifest(manifest);
             return manifest;
         }
-#endif
+
 
         #region 解析资源清单辅助方法
         public static void InitManifest(PackageManifest manifest)
@@ -198,9 +221,16 @@ namespace YooAsset
             manifest.AssetDic = new Dictionary<string, PackageAsset>(assetCount);
 
             if (manifest.EnableAddressable)
+            {
                 manifest.AssetPathMapping1 = new Dictionary<string, string>(assetCount * 3);
+            }
             else
-                manifest.AssetPathMapping1 = new Dictionary<string, string>(assetCount * 2);
+            {
+                if (manifest.LocationToLower)
+                    manifest.AssetPathMapping1 = new Dictionary<string, string>(assetCount * 2, StringComparer.OrdinalIgnoreCase);
+                else
+                    manifest.AssetPathMapping1 = new Dictionary<string, string>(assetCount * 2);
+            }
 
             if (manifest.IncludeAssetGUID)
                 manifest.AssetPathMapping2 = new Dictionary<string, string>(assetCount);
@@ -222,8 +252,6 @@ namespace YooAsset
             // 填充AssetPathMapping1
             {
                 string location = packageAsset.AssetPath;
-                if (manifest.LocationToLower)
-                    location = location.ToLower();
 
                 // 添加原生路径的映射
                 if (manifest.AssetPathMapping1.ContainsKey(location))
@@ -285,27 +313,6 @@ namespace YooAsset
             manifest.BundleDic3.Add(packageBundle.BundleGUID, packageBundle);
         }
         #endregion
-
-        /// <summary>
-        /// 注意：该类拷贝自编辑器
-        /// </summary>
-        private enum EFileNameStyle
-        {
-            /// <summary>
-            /// 哈希值名称
-            /// </summary>
-            HashName = 0,
-
-            /// <summary>
-            /// 资源包名称（不推荐）
-            /// </summary>
-            BundleName = 1,
-
-            /// <summary>
-            /// 资源包名称 + 哈希值名称
-            /// </summary>
-            BundleName_HashName = 2,
-        }
 
         /// <summary>
         /// 获取资源文件的后缀名

@@ -2,12 +2,130 @@
 
 All notable changes to this package will be documented in this file.
 
+## [2.3.8] - 2025-04-17
+
+### Improvements
+
+- 扩展工程里增加了“图集丢失变白块的解决方案”的相关代码。
+
+### Fixed
+
+- (#528) 修复了微信小游戏平台WXFSClearUnusedBundleFiles无法清理的问题。
+- (#531) 修复了微信小游戏平台WXFSClearUnusedBundleFiles没有适配BundleName_HashName命名方式。
+- (#533) 修复了Editor程序集下无法访问YooAsset.Editor程序集里的internal字段的问题。
+- (#534) 修复了资源报告窗口AssetView视图里，依赖资源包列表显示不准确的问题。
+
+## [2.3.7] - 2025-04-01
+
+### Improvements
+
+- (#526) 运行时资源清单的哈希值验证兼容了MD5和CRC32两种方式。
+- (#515) 优化了资源路径大小写不敏感的逻辑代码，减少字符串操作产生的GC。
+- (#523) UnloadUnusedAssetsOperation方法支持了分帧处理。
+
+### Fixed
+
+- (#520) 修复了UWP平台获取WWW加载路径未适配的问题。
+
+### Added
+
+- 新增了文件系统初始化参数：INSTALL_CLEAR_MODE
+
+  ```csharp
+  /// <summary>
+  /// 覆盖安装清理模式
+  /// </summary>
+  public enum EOverwriteInstallClearMode
+  {
+      /// <summary>
+      /// 不做任何处理
+      /// </summary>
+      None = 0,
+   
+      /// <summary>
+      /// 清理所有缓存文件（包含资源文件和清单文件）
+      /// </summary>
+      ClearAllCacheFiles = 1,
+   
+      /// <summary>
+      /// 清理所有缓存的资源文件
+      /// </summary>
+      ClearAllBundleFiles = 2,
+   
+      /// <summary>
+      /// 清理所有缓存的清单文件
+      /// </summary>
+      ClearAllManifestFiles = 3,
+  }
+  ```
+
+- 新增了初始化参数：BundleLoadingMaxConcurrency
+
+  ```csharp
+  public abstract class InitializeParameters
+  {
+      /// <summary>
+      /// 同时加载Bundle文件的最大并发数
+      /// </summary>
+      public int BundleLoadingMaxConcurrency = int.MaxValue;
+  }
+  ```
+
+## [2.3.6] - 2025-03-25
+
+### Improvements
+
+- 构建管线新增了TaskCreateCatalog任务节点。
+- 内置文件系统的catalog文件现在存储在streammingAssets目录下。
+
+### Fixed
+
+- (#486) 修复了微信小游戏文件系统调用ClearUnusedBundleFiles时候的异常。
+
+## [2.3.5-preview] - 2025-03-14
+
+### Fixed
+
+- (#502) 修复了原生缓存文件由于文件格式变动导致的加载本地缓存文件失败的问题。
+- (#504) 修复了MacOS平台Offline Play Mode模式请求本地资源清单失败的问题。
+- (#506) 修复了v2.3x版本LoadAllAssets方法计算依赖Bundle不完整的问题。
+- (#506) 修复了微信小游戏文件系统，在启用加密算法后卸载bundle报错的问题。
+
+## [2.3.4-preview] - 2025-03-08
+
+### Improvements
+
+- YooAsset支持了版本宏定义。
+
+  ```csharp
+  YOO_ASSET_2
+  YOO_ASSET_2_3
+  YOO_ASSET_2_3_OR_NEWER
+  ```
+
+### Fixed
+
+- (#389) 修复了禁用域重载(Reload Domain)的情况下，再次启动游戏报错的问题。
+- (#496) 修复了文件系统参数RESUME_DOWNLOAD_MINMUM_SIZE传入int值会导致异常的错误。
+- (#498) 修复了v2.3版本尝试加载安卓包内的原生资源包失败的问题。
+
+### Added
+
+- 新增了YooAssets.GetAllPackages()方法
+
+  ```csharp
+  /// <summary>
+  /// 获取所有资源包裹
+  /// </summary>
+  public static List<ResourcePackage> GetAllPackages()
+  ```
+
 ## [2.3.3-preview] - 2025-03-06
 
 ### Improvements
 
 - 新增了异步操作任务调试器，AssetBundleDebugger窗口-->OperationView视图模式
-- 编辑器下模拟构建默认启用依赖关系数据库，可以大幅增加编辑器下开始游戏时间。
+- 编辑器下模拟构建默认启用依赖关系数据库，可以大幅降低编辑器下启动游戏的时间。
 - 单元测试用例增加加密解密测试用例。
 
 ### Fixed
