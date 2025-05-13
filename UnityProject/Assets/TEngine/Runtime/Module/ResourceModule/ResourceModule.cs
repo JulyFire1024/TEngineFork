@@ -196,19 +196,19 @@ namespace TEngine
             if (playMode == EPlayMode.WebPlayMode)
             {
                 var createParameters = new WebPlayModeParameters();
-#if UNITY_WEBGL && WEIXINMINIGAME && !UNITY_EDITOR
-                Log.Info("=======================WEIXINMINIGAME=======================");
                 IWebDecryptionServices webDecryptionServices = CreateWebDecryptionServices();
-
-                // 注意：如果有子目录，请修改此处！
-                string packageRoot = $"{WeChatWASM.WX.env.USER_DATA_PATH}/__GAME_FILE_CACHE";
-			    string defaultHostServer = HostServerURL;
+                string defaultHostServer = HostServerURL;
                 string fallbackHostServer = FallbackHostServerURL;
                 IRemoteServices remoteServices = new RemoteServices(defaultHostServer, fallbackHostServer);
+#if UNITY_WEBGL && WEIXINMINIGAME && !UNITY_EDITOR
+                Log.Info("=======================WEIXINMINIGAME=======================");
+                // 注意：如果有子目录，请修改此处！
+                string packageRoot = $"{WeChatWASM.WX.env.USER_DATA_PATH}/__GAME_FILE_CACHE";
                 createParameters.WebServerFileSystemParameters = WechatFileSystemCreater.CreateFileSystemParameters(packageRoot, remoteServices, webDecryptionServices);
 #else
                 Log.Info("=======================UNITY_WEBGL=======================");
-                createParameters.WebServerFileSystemParameters = FileSystemParameters.CreateDefaultWebServerFileSystemParameters();
+                createParameters.WebRemoteFileSystemParameters = FileSystemParameters.CreateDefaultWebRemoteFileSystemParameters(remoteServices, webDecryptionServices);
+                createParameters.WebServerFileSystemParameters = FileSystemParameters.CreateDefaultWebServerFileSystemParameters(webDecryptionServices);
 #endif
                 initializationOperation = package.InitializeAsync(createParameters);
             }
@@ -754,26 +754,6 @@ namespace TEngine
                     callback?.Invoke(null);
                 }
             };
-        }
-
-        public TObject[] LoadSubAssetsSync<TObject>(string location, string packageName = "") where TObject : UnityEngine.Object
-        {
-            if (string.IsNullOrEmpty(location))
-            {
-                throw new GameFrameworkException("Asset name is invalid.");
-            }
-
-            throw new NotImplementedException();
-        }
-
-        public UniTask<TObject[]> LoadSubAssetsAsync<TObject>(string location, string packageName = "") where TObject : UnityEngine.Object
-        {
-            if (string.IsNullOrEmpty(location))
-            {
-                throw new GameFrameworkException("Asset name is invalid.");
-            }
-
-            throw new NotImplementedException();
         }
 
         public async UniTask<T> LoadAssetAsync<T>(string location, CancellationToken cancellationToken = default, string packageName = "") where T : UnityEngine.Object

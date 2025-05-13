@@ -405,6 +405,7 @@ namespace GameLogic
                 return;
             }
 
+            window.CancelHideToCloseTimer();
             window.Visible = false;
             window.IsHide = true;
             window.HideTimerId = GameModule.Timer.AddTimer((arg) =>
