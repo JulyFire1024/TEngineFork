@@ -343,7 +343,7 @@ namespace TEngine
         ObjectPoolBase CreateSingleSpawnObjectPool(Type objectType, string name, float expireTime, int priority);
 
         /// <summary>
-        /// 创建允许单次获取的对象池。
+        /// 创建允许单次获取的对象池。WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
         /// </summary>
         /// <typeparam name="T">对象类型。</typeparam>
         /// <param name="capacity">对象池的容量。</param>

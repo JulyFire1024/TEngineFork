@@ -12,7 +12,7 @@ namespace TEngine
         private bool _locked;
         private int _priority;
         private DateTime _lastUseTime;
-
+ 
         /// <summary>
         /// 初始化对象基类的新实例。
         /// </summary>
