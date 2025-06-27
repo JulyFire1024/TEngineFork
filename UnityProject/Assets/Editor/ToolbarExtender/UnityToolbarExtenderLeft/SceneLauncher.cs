@@ -4,10 +4,9 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityToolbarExtender;
 
-namespace TEngine.SceneLauncher
+namespace TEngine
 {
-    [InitializeOnLoad]
-    public class SceneSwitchLeftButton
+    public partial class UnityToolbarExtenderLeft
     {
         private const string PreviousSceneKey = "TEngine_PreviousScenePath"; // 用于存储之前场景路径的键
         private const string IsLauncherBtn = "TEngine_IsLauncher"; // 用于存储之前是否按下launcher
@@ -16,15 +15,8 @@ namespace TEngine.SceneLauncher
 
         private static readonly string ButtonStyleName = "Tab middle";
         private static GUIStyle _buttonGuiStyle;
-
-        static SceneSwitchLeftButton()
-        {
-            ToolbarExtender.LeftToolbarGUI.Add(OnToolbarGUI);
-            EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
-            EditorApplication.quitting += OnEditorQuit;
-        }
-
-        private static void OnToolbarGUI()
+        
+        private static void OnToolbarGUI_SceneLauncher()
         {
             _buttonGuiStyle ??= new GUIStyle(ButtonStyleName)
             {
