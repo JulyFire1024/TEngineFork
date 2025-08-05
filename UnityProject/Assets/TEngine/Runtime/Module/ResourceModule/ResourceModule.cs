@@ -131,7 +131,7 @@ namespace TEngine
             SetObjectPoolModule(objectPoolManager);
         }
 
-        public async UniTask<InitializationOperation> InitPackage(string packageName)
+        public async UniTask<InitializationOperation> InitPackage(string packageName, bool needInitMainFest = false)
         {
 #if UNITY_EDITOR
             //编辑器模式使用。
@@ -224,6 +224,27 @@ namespace TEngine
             await initializationOperation.ToUniTask();
 
             Log.Info($"Init resource package version : {initializationOperation?.Status}");
+
+            if (needInitMainFest)
+            {
+                // 2. 请求资源清单的版本信息
+                var requestPackageVersionOperation = package.RequestPackageVersionAsync();
+                await requestPackageVersionOperation;
+                if (requestPackageVersionOperation.Status == EOperationStatus.Succeed)
+                {
+                    // 3. 传入的版本信息更新资源清单
+                    var updatePackageManifestAsync = package.UpdatePackageManifestAsync(requestPackageVersionOperation.PackageVersion);
+                    await updatePackageManifestAsync;
+                    if (updatePackageManifestAsync.Status == EOperationStatus.Failed)
+                    {
+                        Log.Fatal($"Update package manifest failed : {updatePackageManifestAsync.Status}");
+                    }
+                }
+                else
+                {
+                    Log.Fatal($"Request package version failed : {requestPackageVersionOperation.Status}");
+                }
+            }
 
             return initializationOperation;
         }

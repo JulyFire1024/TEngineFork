@@ -253,7 +253,7 @@ namespace TEngine
         /// </summary>
         private static IEncryptionServices CreateEncryptionInstance(string packageName, EBuildPipeline buildPipeline)
         {
-            var encryptionClassName = AssetBundleBuilderSetting.GetPackageEncyptionClassName(packageName, buildPipeline);
+            var encryptionClassName = AssetBundleBuilderSetting.GetPackageEncyptionServicesClassName(packageName, buildPipeline.ToString());
             var encryptionClassTypes = EditorTools.GetAssignableTypes(typeof(IEncryptionServices));
             var classType = encryptionClassTypes.Find(x => x.FullName != null && x.FullName.Equals(encryptionClassName));
             if (classType != null)
@@ -310,7 +310,7 @@ namespace TEngine
 
         public static void BuildImp(BuildTargetGroup buildTargetGroup, BuildTarget buildTarget, string locationPathName)
         {
-            EditorUserBuildSettings.SwitchActiveBuildTarget(buildTargetGroup, BuildTarget.StandaloneWindows64);
+            EditorUserBuildSettings.SwitchActiveBuildTarget(buildTargetGroup, buildTarget);
             AssetDatabase.Refresh();
 
             BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions
