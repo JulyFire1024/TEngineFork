@@ -689,6 +689,12 @@ namespace TEngine
             {
                 throw new GameFrameworkException("Asset name is invalid.");
             }
+            
+            if (!CheckLocationValid(location, packageName))
+            {
+                Log.Error($"Could not found location [{location}].");
+                return null;
+            }
 
             string assetObjectKey = GetCacheKey(location, packageName);
             AssetObject assetObject = _assetPool.Spawn(assetObjectKey);
@@ -713,6 +719,12 @@ namespace TEngine
             {
                 throw new GameFrameworkException("Asset name is invalid.");
             }
+            
+            if (!CheckLocationValid(location, packageName))
+            {
+                Log.Error($"Could not found location [{location}].");
+                return null;
+            }
 
             string assetObjectKey = GetCacheKey(location, packageName);
             AssetObject assetObject = _assetPool.Spawn(assetObjectKey);
@@ -727,7 +739,12 @@ namespace TEngine
 
             assetObject = AssetObject.Create(assetObjectKey, handle.AssetObject, handle, this);
             _assetPool.Register(assetObject, true);
-
+#if UNITY_EDITOR&&EditorFixedMaterialShader
+            if (PlayMode!=EPlayMode.EditorSimulateMode)
+            {
+                Utility.MaterialHelper.FixedMaterialShader_All(gameObject.transform);
+            }
+#endif
             return gameObject;
         }
 
@@ -749,6 +766,13 @@ namespace TEngine
             if (string.IsNullOrEmpty(location))
             {
                 throw new GameFrameworkException("Asset name is invalid.");
+            }
+            
+            if (!CheckLocationValid(location, packageName))
+            {
+                Log.Error($"Could not found location [{location}].");
+                callback?.Invoke(null);
+                return;
             }
 
             string assetObjectKey = GetCacheKey(location, packageName);
@@ -791,6 +815,12 @@ namespace TEngine
             {
                 throw new GameFrameworkException("Asset name is invalid.");
             }
+            
+            if (!CheckLocationValid(location, packageName))
+            {
+                Log.Error($"Could not found location [{location}].");
+                return null;
+            }
 
             string assetObjectKey = GetCacheKey(location, packageName);
 
@@ -806,7 +836,6 @@ namespace TEngine
             _assetLoadingList.Add(assetObjectKey);
 
             AssetHandle handle = GetHandleAsync<T>(location, packageName: packageName);
-
             bool cancelOrFailed = await handle.ToUniTask().AttachExternalCancellation(cancellationToken).SuppressCancellationThrow();
 
             if (cancelOrFailed)
@@ -828,6 +857,12 @@ namespace TEngine
             if (string.IsNullOrEmpty(location))
             {
                 throw new GameFrameworkException("Asset name is invalid.");
+            }
+            
+            if (!CheckLocationValid(location, packageName))
+            {
+                Log.Error($"Could not found location [{location}].");
+                return null;
             }
 
             string assetObjectKey = GetCacheKey(location, packageName);
@@ -859,7 +894,12 @@ namespace TEngine
             _assetPool.Register(assetObject, true);
 
             _assetLoadingList.Remove(assetObjectKey);
-
+#if UNITY_EDITOR&&EditorFixedMaterialShader
+            if (PlayMode!=EPlayMode.EditorSimulateMode)
+            {
+                Utility.MaterialHelper.FixedMaterialShader_All(gameObject.transform);
+            }
+#endif
             return gameObject;
         }
 
@@ -884,6 +924,17 @@ namespace TEngine
             if (loadAssetCallbacks == null)
             {
                 throw new GameFrameworkException("Load asset callbacks is invalid.");
+            }
+            
+            if (!CheckLocationValid(location, packageName))
+            {
+                string errorMessage = Utility.Text.Format("Could not found location [{0}].", location);
+                Log.Error(errorMessage);
+                if (loadAssetCallbacks.LoadAssetFailureCallback != null)
+                {
+                    loadAssetCallbacks.LoadAssetFailureCallback(location, LoadResourceStatus.NotExist, errorMessage, userData);
+                }
+                return;
             }
 
             string assetObjectKey = GetCacheKey(location, packageName);
@@ -974,6 +1025,17 @@ namespace TEngine
             if (loadAssetCallbacks == null)
             {
                 throw new GameFrameworkException("Load asset callbacks is invalid.");
+            }
+            
+            if (!CheckLocationValid(location, packageName))
+            {
+                string errorMessage = Utility.Text.Format("Could not found location [{0}].", location);
+                Log.Error(errorMessage);
+                if (loadAssetCallbacks.LoadAssetFailureCallback != null)
+                {
+                    loadAssetCallbacks.LoadAssetFailureCallback(location, LoadResourceStatus.NotExist, errorMessage, userData);
+                }
+                return;
             }
 
             string assetObjectKey = GetCacheKey(location, packageName);

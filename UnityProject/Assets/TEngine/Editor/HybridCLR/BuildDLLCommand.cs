@@ -3,8 +3,10 @@ using HybridCLR.Editor;
 using HybridCLR.Editor.Commands;
 #endif
 using System.IO;
+#if ENABLE_OBFUZ
 using Obfuz.Settings;
 using Obfuz4HybridCLR;
+#endif
 using System.Collections.Generic;
 using TEngine.Editor;
 using UnityEditor;
@@ -44,6 +46,7 @@ public static class BuildDLLCommand
     }
     #endregion
     
+#if ENABLE_OBFUZ
     #region Obfuz/Define Symbols
     /// <summary>
     /// 禁用Obfuz宏定义。
@@ -66,7 +69,7 @@ public static class BuildDLLCommand
         ObfuzSettings.Instance.buildPipelineSettings.enable = true;
     }
     #endregion
-    
+#endif
 
     [MenuItem("HybridCLR/Build/BuildAssets And CopyTo AssemblyTextAssetPath")]
     public static void BuildAndCopyDlls()
